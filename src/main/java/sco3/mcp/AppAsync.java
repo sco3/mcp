@@ -8,17 +8,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.modelcontextprotocol.server.McpAsyncServer;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
-import io.modelcontextprotocol.server.McpSyncServer;
 import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
 import io.modelcontextprotocol.spec.McpSchema;
-import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import io.modelcontextprotocol.spec.McpSchema.Content;
 import io.modelcontextprotocol.spec.McpSchema.ServerCapabilities;
 import io.modelcontextprotocol.spec.McpSchema.Tool;
+import reactor.core.publisher.Mono;
 
-public class App {
+public class AppAsync {
 
 	private static Logger logger = LoggerFactory.getLogger(App.class);
 
@@ -28,14 +28,12 @@ public class App {
 		);
 
 		var cap = ServerCapabilities.builder() //
-				.resources(false, true) //
 				.tools(true) //
-				.prompts(false) //
 				.logging() //
 				.build();
 
-		McpSyncServer server = McpServer//
-				.sync(tProvider)//
+		McpAsyncServer server = McpServer//
+				.async(tProvider)//
 				.serverInfo("my-server", "1.0.0")//
 				.capabilities(cap)//
 				.build();
@@ -54,19 +52,21 @@ public class App {
 				}
 				""";
 
-		var tool = new McpServerFeatures.SyncToolSpecification(//
+		var tool = new McpServerFeatures.AsyncToolSpecification(//
 				new Tool("mux", "mux", schema), //
 				(exchange, arguments) -> {
 					List<Content> list = List.of(new McpSchema.TextContent(""));
 					System.out.println(list);
-					return new CallToolResult(list, false);
+
+					return Mono.just(new McpSchema.CallToolResult(List.of(new McpSchema.TextContent("0")), null));
 
 				});
 
 		logger.info("""
 				{"jsonrpc":"2.0","id":1,"method":"notifications/tools/list_changed"}
 				""".replaceAll("\n", ""));
-		server.addTool(tool);
+
+		server.addTool(tool).subscribe();
 
 	}
 }
