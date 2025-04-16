@@ -16,7 +16,12 @@ import io.modelcontextprotocol.spec.McpSchema.Tool;
 import io.modelcontextprotocol.spec.McpSchema;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class App {
+
+	private static Logger logger = LoggerFactory.getLogger(App.class);
 
 	public static void main(String[] args) {
 		StdioServerTransportProvider tProvider = (//
@@ -59,9 +64,9 @@ public class App {
 
 				});
 
-		System.out.println("""
+		logger.info("""
 				{"jsonrpc":"2.0","id":1,"method":"notifications/tools/list_changed"}
-				""");
+				""".replaceAll("\n", ""));
 		server.addTool(tool);
 
 	}
