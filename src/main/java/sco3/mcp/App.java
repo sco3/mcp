@@ -49,7 +49,6 @@ public class App {
 				  }
 				}
 				""";
-		// {"messageId":"1","type":"toolCall","toolId":"mux","arguments":{"a":2,"b":4}}
 
 		var tool = new McpServerFeatures.SyncToolSpecification(//
 				new Tool("mux", "mux", schema), //
@@ -60,8 +59,10 @@ public class App {
 
 				});
 
+		System.out.println("""
+				{"jsonrpc":"2.0","id":1,"method":"notifications/tools/list_changed"}
+				""");
 		server.addTool(tool);
-		server.close();
 
 	}
 }

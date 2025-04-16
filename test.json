@@ -1,0 +1,6 @@
+{
+  "jsonrpc": "2.0",
+  "method": "mux",
+  "params": {"a":1,"b":2},
+  "id": 1
+}
